@@ -36,8 +36,8 @@ amp = 2**nob  # signal peak-to-peak amplitude
 # %% Initial Paramters
 
 #filter parameters
-f_c =1e3 # cutoff frequency
-f_s = 1e5;  # sampling frequency
+f_c =1e2 # cutoff frequency
+f_s = 1e3;  # sampling frequency
 Wn = f_c / (f_s / 2)
 
 # sampling 

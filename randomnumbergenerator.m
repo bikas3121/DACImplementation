@@ -12,8 +12,8 @@ s = rng;
 INL =  0 + (4+0)*rand(length(t),1);   
 INL = round(INL,2);
 
-figure()
-plot(1:1:length(INL), INL)
+% figure()
+% plot(1:1:length(INL), INL)
 %% Quantizer Set
 % plot(t,re)
 
