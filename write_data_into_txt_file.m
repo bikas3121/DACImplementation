@@ -7,7 +7,7 @@ data = readmatrix('unfiltered_simulationresult.csv');
 t = data(:,1);  % simulation time samples
 ref = data(:,2);   % filtered reference signal
 u_direct = data(:,3);  % directly quantized reference signal with unifrom quantizer
-u_mpc2 = data(:,6); % optimally quantized reference signal with non-unifrom quantizer without INL feedback
+u_mpc2 = data(:,5); % optimally quantized reference signal with non-unifrom quantizer without INL feedback
 u_mpcINL = data(:,7); % optimally quantized reference signal with non-unifrom quantizer with INL feedback
 
 % write data
