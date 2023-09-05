@@ -75,7 +75,7 @@ with open ('INL.txt') as f:
     array = []
     for line in f: # read rest of lines
         array = [float(x) for x in line.split()]
-        INL.append(array[0]*3) # multiplied by 3 to increase the size of the INL size. 
+        INL.append(array[0]) # multiplied by 3 to increase the size of the INL size. 
         
 INL = INL[0:len(Q)]
 INL[0] = 0  

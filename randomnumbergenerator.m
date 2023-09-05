@@ -9,7 +9,7 @@ s = rng;
 % Change the value of a and b to generate the INL with different LSB
 % variates. 
 
-INL =  -1 +(1+1)*rand(length(t),1);   
+INL =  -1.5 + (1.5+1.5)*rand(length(t),1);   
 INL = round(INL,2);
 
 %% Quantizer Set
