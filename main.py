@@ -31,7 +31,7 @@ N = 2    # prediction horizon
 freq = 5  # reference/ input signal frequency
 
 nob = 8   # number of bits
-amp = 2**nob  + 0.5# signal peak-to-peak amplitude 
+amp = 2**nob  # signal peak-to-peak amplitude 
 
 # %% Initial Paramters
 
@@ -49,7 +49,8 @@ t = np.arange(0,t_end,T_s)  # time vector
 #  Reference signal
 t1 = np.arange(0,1.1,T_s )
 
-ref = amp*np.sin(2*np.pi*freq*t1)  # ref signal
+ref = 1/2*(amp*np.sin(2*np.pi*freq*t1)) + amp/2  # ref signal
+
 # ref = np.random.uniform(-8.5, 7.5, len(t1))
 
 
@@ -65,7 +66,7 @@ A, B, C, D = signal.tf2ss(b,a)
 
 # %% Quatantizer Parameters
 # Q = np.arange(-8, 8,1 )
-Q =  np.arange(-int(amp), int(amp)+1,1)  #quantizer levels
+Q =  np.arange(0, int(amp)+1,1)  #quantizer levels
 
 # INL 
 # Read INL from the saved file for the reproduciblity of the simulation results.
@@ -126,6 +127,17 @@ u_mpc1 = dq.DirectQuantization(U, u_mpc)  # Quantization using Non-unifrom DAC
 
 u_mpc_INL = gMPCINL.MPC(x0, N, ref, A, B, C, D, t, Q, INL)
 u_mpc_INL = dq.DirectQuantization(U, u_mpc_INL)
+
+
+# %%  Write data into file.
+headerlist = ['Time', 'Reference', 'Direct (Unifrom)', 'Direct(Non-uniform)', 'MPC(Unifrom)', 'MPC(Non-Uniform)', 'MPC(Non-Unifrom with  INL Feedback)']
+# headerlist = ['Time', 'Reference', 'Direct', 'Direct-INL', 'MPC', 'MPC-INL (w/o INL)',  'MPC with INL']
+with open('unfiltered_simulationresult.csv','w') as f:
+    writer = csv.writer(f, delimiter ='\t')
+    writer.writerow(headerlist)
+    writer.writerows(zip(t, ref, u_direct, u_direct_INL,  u_mpc, u_mpc1,  u_mpc_INL))
+
+
 # %% Signal Processing
 
 sgp = signalProcessing(N, t, ref, b, a)
