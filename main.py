@@ -36,8 +36,8 @@ amp = 2**nob  # signal peak-to-peak amplitude
 # %% Initial Paramters
 
 #filter parameters
-f_c =1e2 # cutoff frequency
-f_s = 1e3;  # sampling frequency
+f_c =1e3 # cutoff frequency
+f_s = 1e5;  # sampling frequency
 Wn = f_c / (f_s / 2)
 
 # sampling 
@@ -125,17 +125,17 @@ u_mpc1 = dq.DirectQuantization(U, u_mpc)  # Quantization using Non-unifrom DAC
 
 # %% MPC Gurobi  with INL Feedback
 
-u_mpc_INL = gMPCINL.MPC(x0, N, ref, A, B, C, D, t, Q, INL)
+u_mpc_trun, u_mpc_INL = gMPCINL.MPC(x0, N, ref, A, B, C, D, t, Q, INL)
 u_mpc_INL = dq.DirectQuantization(U, u_mpc_INL)
 
 
 # %%  Write data into file.
-headerlist = ['Time', 'Reference', 'Direct (Unifrom)', 'Direct(Non-uniform)', 'MPC(Unifrom)', 'MPC(Non-Uniform)', 'MPC(Non-Unifrom with  INL Feedback)']
+headerlist = ['Time', 'Reference', 'Direct (Unifrom)', 'Direct(Non-uniform)', 'MPC(Unifrom)', 'MPC(Non-Uniform)', 'MPC(Non-Unifrom with  INL Feedback)', 'MPC Truncated']
 # headerlist = ['Time', 'Reference', 'Direct', 'Direct-INL', 'MPC', 'MPC-INL (w/o INL)',  'MPC with INL']
 with open('unfiltered_simulationresult.csv','w') as f:
     writer = csv.writer(f, delimiter ='\t')
     writer.writerow(headerlist)
-    writer.writerows(zip(t, ref, u_direct, u_direct_INL,  u_mpc, u_mpc1,  u_mpc_INL))
+    writer.writerows(zip(t, ref, u_direct, u_direct_INL,  u_mpc, u_mpc1,  u_mpc_INL, u_mpc_trun))
 
 
 # %% Signal Processing

@@ -38,6 +38,7 @@ def MPC(x0, N, ref, A, B, C, D, t, Q, INL):
      # t - total simulation time
 
      len_ref = len(t)
+     u_mpc1 = []
      u_mpc = []
      j = 0
      # MPC Uniform
@@ -87,7 +88,7 @@ def MPC(x0, N, ref, A, B, C, D, t, Q, INL):
     
          # Store the first value of the optimal quantizer
          u_opt = control_u[0]  # moving horizon control
-         # u_mpc = np.append(u_mpc, u_opt)  # store the optimal value
+         u_mpc1 = np.append(u_mpc1, u_opt)  # store the optimal value before adding INL
          u_opt = add_INL(u_opt, Q, INL)
          u_mpc = np.append(u_mpc, u_opt)  # store the optimal value
     
@@ -97,6 +98,6 @@ def MPC(x0, N, ref, A, B, C, D, t, Q, INL):
          # set the new initial condition as the prediction using optimal control.
          x0 = x0_new
          j += 1
-     return u_mpc
+     return u_mpc1, u_mpc
 
         
