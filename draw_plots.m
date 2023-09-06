@@ -1,6 +1,6 @@
 % plot simulation results from python 
 % read data
-data = readmatrix('simulationresult.csv'); 
+data = readmatrix('filtered_simulationresult.csv'); 
 
 t = data(:,1);  % simulation time samples
 

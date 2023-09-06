@@ -36,7 +36,7 @@ amp = 2**nob  # signal peak-to-peak amplitude
 # %% Initial Paramters
 
 #filter parameters
-f_c =1e3 # cutoff frequency
+f_c =2e3 # cutoff frequency
 f_s = 1e5;  # sampling frequency
 Wn = f_c / (f_s / 2)
 
@@ -128,77 +128,103 @@ u_mpc1 = dq.DirectQuantization(U, u_mpc)  # Quantization using Non-unifrom DAC
 u_mpc_trun, u_mpc_INL = gMPCINL.MPC(x0, N, ref, A, B, C, D, t, Q, INL)
 u_mpc_INL = dq.DirectQuantization(U, u_mpc_INL)
 
+# %% create file name with time stamp and other information
+from datetime import datetime
+import os
+from pathlib import Path
 
-# %%  Write data into file.
+folder_name = "Unfilt_SimulationResult-"
+current_datetime = datetime.now().strftime("%y%h%d_%H-%M")
+folder_to_save_file = folder_name + current_datetime
+
+# print("current date time", folder_to_save_file)
+
+# if not os.path.exists(folder_to_save_file):
+#     os.mkdir(folder_to_save_file)
+
+path = r'OutputData'
+str_file_name = str(folder_to_save_file)
+file_name =str_file_name+".csv" 
+
+# file_name = "folder_to_save_file.csv"
+
 headerlist = ['Time', 'Reference', 'Direct (Unifrom)', 'Direct(Non-uniform)', 'MPC(Unifrom)', 'MPC(Non-Uniform)', 'MPC(Non-Unifrom with  INL Feedback)', 'MPC Truncated']
 # headerlist = ['Time', 'Reference', 'Direct', 'Direct-INL', 'MPC', 'MPC-INL (w/o INL)',  'MPC with INL']
-with open('unfiltered_simulationresult.csv','w') as f:
+# with open(folder_to_save_file/'unfiltered_simulationresult.csv','w') as f:
+with open(os.path.join(path,file_name),'w') as f:
     writer = csv.writer(f, delimiter ='\t')
     writer.writerow(headerlist)
     writer.writerows(zip(t, ref, u_direct, u_direct_INL,  u_mpc, u_mpc1,  u_mpc_INL, u_mpc_trun))
+    
 
+
+    
 
 # %% Signal Processing
-
 sgp = signalProcessing(N, t, ref, b, a)
 
-# Filtered reference signal
+# # Filtered reference signal
 filtered_reference = sgp.referenceFilter     
 
-#Filtered signal:  Direct Quantizer by Unifrom DAC 
+   # #Filtered signal:  Direct Quantizer by Unifrom DAC 
 u_direct_filter, error_direct, var_direct = sgp.signalFilter(u_direct)
-
-#  Direct Quantizer by Non Unifrom DAC 
+   
+   # #  Direct Quantizer by Non Unifrom DAC 
 u_direct_INL_filter, error_INL_direct, var_INL_direct = sgp.signalFilter(u_direct_INL)
-
-# Optimal Quantizer without INL feedback
+   
+   # # Optimal Quantizer without INL feedback
 u_mpc_filter, error_mpc, var_mpc = sgp.signalFilter(u_mpc)  # Quantized using unifrom DAC
-
-# Optimal Quantizer for Unifrom DAC with INL feedback applied to Non-uniform DAC
+   
+   # # Optimal Quantizer for Unifrom DAC with INL feedback applied to Non-uniform DAC
 u_mpc1_filter, error_mpc1, var_mpc1 = sgp.signalFilter(u_mpc1)  # Quantized using Non-unifrom DAC
-
-# Optimal Quantizer with INL feedback
+   
+   # # Optimal Quantizer with INL feedback
 u_mpc_INL_filter, error_mpc_INL, var_mpc_INL = sgp.signalFilter(u_mpc_INL)  # Quantized using Non-unifrom DAC
-
-# legend = ['Reference', 'Direct (Unifrom)', 'Direct(Non-uniform)', 'MPC(Unifrom)', 'MPC(Non-Uniform)', 'MPC(Non-Unifrom with  INL Feedback)']
+    
+legend = ['Reference', 'Direct (Unifrom)', 'Direct(Non-uniform)', 'MPC(Unifrom)', 'MPC(Non-Uniform)', 'MPC(Non-Unifrom with  INL Feedback)']
 # %%  Write data into file.
 headerlist = ['Time', 'Reference', 'Direct (Unifrom)', 'Direct(Non-uniform)', 'MPC(Unifrom)', 'MPC(Non-Uniform)', 'MPC(Non-Unifrom with  INL Feedback)']
-# headerlist = ['Time', 'Reference', 'Direct', 'Direct-INL', 'MPC', 'MPC-INL (w/o INL)',  'MPC with INL']
-with open('simulationresult.csv','w') as f:
+    # # headerlist = ['Time', 'Reference', 'Direct', 'Direct-INL', 'MPC', 'MPC-INL (w/o INL)',  'MPC with INL']
+
+# write the filtered result to plot 
+with open('filtered_simulationresult.csv','w') as f:
     writer = csv.writer(f, delimiter ='\t')
     writer.writerow(headerlist)
     writer.writerows(zip(t, filtered_reference, u_direct_filter, u_direct_INL_filter,  u_mpc_filter, u_mpc1_filter,  u_mpc_INL_filter))
-# %% PLots
-# plt.figure()
-# plt.plot(t, filtered_reference)    
-# plt.plot(t, u_direct_filter)  
-# # plt.plot(t, u_direct_INL_filter)    
-# # plt.plot(t, u_mhoq_filter)
-# # plt.plot(t, u_mhoq_INL_filter)
-# plt.plot(t, u_mpc_filter)
-# # plt.plot(t, u_mpc1_filter)
-# # plt.plot(t, u_mpc_INL_filter)
-# plt.legend(leg)
-# # plt.legend(['Reference', 'Direct Quantizer', 'MPC'])
-# plt.xlabel('Time')
-# plt.grid(True)
 
 
-# # Plot of noise power
-# bars = [var_direct, var_INL_direct, var_mpc, var_mpc1, var_mpc_INL] 
-# # bars = [var_INL_direct, var_mpc1, var_mpc_INL] 
-# x_pos = [0,1,2,3,4]  # x position of bars
-# # bar plot noise power
-# plt.figure()
-# plt.bar(x_pos, bars, width = 0.9 )
-# plt.xticks([i  for i in range(len(bars))],leg[1:len(leg)])
-# for i in range(5):
-#     plt.text(x = x_pos[i], y= bars[i] + 0.00015 , s= bars[i], size = 10)
-# plt.subplots_adjust(bottom= 0.1, top = 1.5)
-# plt.ylabel('Error Variance')
-# plt.show()
-
-
-
-# print(var_direct)
-# print(var_mhoq)
+    # %% PLots
+    # plt.figure()
+    # plt.plot(t, filtered_reference)    
+    # plt.plot(t, u_direct_filter)  
+    # # plt.plot(t, u_direct_INL_filter)    
+    # # plt.plot(t, u_mhoq_filter)
+    # # plt.plot(t, u_mhoq_INL_filter)
+    # plt.plot(t, u_mpc_filter)
+    # # plt.plot(t, u_mpc1_filter)
+    # # plt.plot(t, u_mpc_INL_filter)
+    # plt.legend(leg)
+    # # plt.legend(['Reference', 'Direct Quantizer', 'MPC'])
+    # plt.xlabel('Time')
+    # plt.grid(True)
+    
+    
+    # # Plot of noise power
+    # bars = [var_direct, var_INL_direct, var_mpc, var_mpc1, var_mpc_INL] 
+    # # bars = [var_INL_direct, var_mpc1, var_mpc_INL] 
+    # x_pos = [0,1,2,3,4]  # x position of bars
+    # # bar plot noise power
+    # plt.figure()
+    # plt.bar(x_pos, bars, width = 0.9 )
+    # plt.xticks([i  for i in range(len(bars))],leg[1:len(leg)])
+    # for i in range(5):
+    #     plt.text(x = x_pos[i], y= bars[i] + 0.00015 , s= bars[i], size = 10)
+    # plt.subplots_adjust(bottom= 0.1, top = 1.5)
+    # plt.ylabel('Error Variance')
+    # plt.show()
+    
+    
+    
+    # print(var_direct)
+    # print(var_mhoq)
+''
